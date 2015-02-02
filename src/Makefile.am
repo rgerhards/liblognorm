@@ -48,4 +48,4 @@ EXTRA_DIST = \
 	parser.h \
 	json_compatibility.h
 
-include_HEADERS = liblognorm.h samp.h lognorm.h ptree.h annot.h enc.h parser.h lognorm-features.h
+include_HEADERS = liblognorm.h lognorm-features.h

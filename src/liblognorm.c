@@ -130,18 +130,7 @@ done:
 
 
 int
-ln_loadSample(ln_ctx ctx, const char *buf)
-{
-    // Something bad happened - no new sample
-    if (ln_processSamp(ctx, buf, strlen(buf)) == NULL) {
-        return 1;
-    }
-    return 0;
-}
-
-
-int
-ln_loadSamples(ln_ctx ctx, const char *file)
+ln_loadRulebase(ln_ctx ctx, const char *const file)
 {
 	int r = 0;
 	struct ln_sampRepos *repo;
@@ -150,15 +139,7 @@ ln_loadSamples(ln_ctx ctx, const char *file)
 
 	CHECK_CTX;
 	if(file == NULL) ERR_ABORT;
-	if((repo = ln_sampOpen(ctx, file)) == NULL) ERR_ABORT;
-	while(!isEof) {
-		if((samp = ln_sampRead(ctx, repo, &isEof)) == NULL) {
-			/* TODO: what exactly to do? */
-		}
-	}
-	ln_sampClose(ctx, repo);
-
+	r = ln_rbLoad(ctx, file);
 done:
 	return r;
 }
-

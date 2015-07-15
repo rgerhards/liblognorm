@@ -26,6 +26,7 @@ liblognorm_la_SOURCES = \
 	ptree.c \
 	annot.c \
 	samp.c \
+	rulebase.c \
 	lognorm.c \
 	parser.c \
 	enc_syslog.c \
@@ -35,7 +36,7 @@ liblognorm_la_SOURCES = \
 
 liblognorm_la_CPPFLAGS = $(JSON_C_CFLAGS) $(LIBESTR_CFLAGS) $(PCRE_CFLAGS)
 liblognorm_la_LIBADD = $(rt_libs) $(JSON_C_LIBS) $(LIBESTR_LIBS) $(PCRE_LIBS) -lestr
-liblognorm_la_LDFLAGS = -version-info 2:0:0
+liblognorm_la_LDFLAGS = -version-info 3:0:0
 
 EXTRA_DIST = \
 	internal.h \
@@ -44,8 +45,9 @@ EXTRA_DIST = \
 	ptree.h \
 	annot.h \
 	samp.h \
+	rulebase.h \
 	enc.h \
 	parser.h \
 	json_compatibility.h
 
-include_HEADERS = liblognorm.h samp.h lognorm.h ptree.h annot.h enc.h parser.h lognorm-features.h
+include_HEADERS = liblognorm.h rulebase.h samp.h lognorm.h ptree.h annot.h enc.h parser.h lognorm-features.h

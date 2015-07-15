@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
 		ln_enableDebug(ctx, 1);
 	}
 
-	ln_loadSamples(ctx, repository);
+	ln_loadRulebase(ctx, repository);
 
 	if(verbose > 0)
 		fprintf(stderr, "number of tree nodes: %d\n", ctx->nNodes);

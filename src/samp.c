@@ -575,8 +575,7 @@ processRule(ln_ctx ctx, const char *buf, es_size_t lenBuf, es_size_t offs)
 	CHKR(processTags(ctx, buf, lenBuf, &offs, &tagBucket));
 
 	if(offs == lenBuf) {
-		ln_dbgprintf(ctx, "error, actual message sample part is missing");
-		// TODO: provide some error indicator to app? We definitely must do (a callback?)
+		ln_errprintf(ctx, 0, "rule misses actual message sample part");
 		goto done;
 	}
 	if(ctx->rulePrefix == NULL) {
@@ -771,10 +770,9 @@ ln_processSamp(ln_ctx ctx, const char *buf, es_size_t lenBuf)
 	} else if(!es_strconstcmp(typeStr, "annotate")) {
 		if(processAnnotate(ctx, buf, lenBuf, offs) != 0) goto done;
 	} else {
-		/* TODO error reporting */
 		char *str;
 		str = es_str2cstr(typeStr, NULL);
-		ln_dbgprintf(ctx, "invalid record type detected: '%s'", str);
+		ln_errprintf(ctx, 0, "invalid record type detected: '%s'", str);
 		free(str);
 		goto done;
 	}

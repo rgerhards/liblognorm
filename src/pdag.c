@@ -65,7 +65,8 @@ static struct ln_parser_info parser_lookup_table[] = {
 	PARSER_ENTRY_NO_DATA("v2-iptables", v2IPTables),
 	PARSER_ENTRY("string-to", StringTo),
 	PARSER_ENTRY("char-to", CharTo),
-	PARSER_ENTRY("char-sep", CharSeparated)
+	PARSER_ENTRY("char-sep", CharSeparated),
+	PARSER_ENTRY("char-sep", Repeat)
 };
 #define NPARSERS (sizeof(parser_lookup_table)/sizeof(struct ln_parser_info))
 
@@ -84,17 +85,19 @@ prsid_t
 ln_parserName2ID(const char *const __restrict__ name)
 {
 	unsigned i;
+
 	for(  i = 0
 	    ; i < sizeof(parser_lookup_table) / sizeof(struct ln_parser_info)
 	    ; ++i) {
-	    	if(!strcmp(parser_lookup_table[i].name, name))
+	    	if(!strcmp(parser_lookup_table[i].name, name)) {
 			return i;
+		}
 	    }
 	return PRS_INVALID;
 }
 
-/* find type pdag in table. If "bAdd" is seit, add it if not
- * already present.
+/* find type pdag in table. If "bAdd" is set, add it if not
+ * already present, a new entry will be added.
  * Returns NULL on error, ptr to type pdag entry otherwise
  */
 struct ln_type_pdag *
@@ -191,18 +194,10 @@ ln_newParser(ln_ctx ctx,
 	}
 
 	json = json_object_object_get(prscnf, "name");
-	if(json == NULL) {
-		name = strdup("-");
-	} else {
-		name = strdup(json_object_get_string(json));
-	}
+	name = strdup((json == NULL) ? "-" : json_object_get_string(json));
 
 	json = json_object_object_get(prscnf, "extradata");
-	if(json == NULL) {
-		extraData = NULL;
-	} else {
-		extraData = strdup(json_object_get_string(json));
-	}
+	extraData = (json == NULL) ? NULL : strdup(json_object_get_string(json));
 
 	/* we need to remove already processed items from the config, so
 	 * that we can pass the remaining parameters to the parser.

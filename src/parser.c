@@ -2455,3 +2455,61 @@ done:
 	}
 	return r;
 }
+
+
+struct data_Repeat {
+	ln_pdag *parser;
+	ln_pdag *while_cond;
+};
+/**
+ * "repeat" special parser.
+ */
+PARSER_Parse(Repeat)
+	struct data_Repeat *const data = (struct data_Repeat*) pdata;
+#if 0
+	/* success, persist */
+	*parsed = i - *offs;
+	if(value != NULL) {
+		char *cstr = strndup(str+ *offs, *parsed);
+		*value = json_object_new_string(cstr);
+		free(cstr);
+	}
+#endif
+	r = 0; /* success */
+done:
+	return r;
+}
+PARSER_Construct(Repeat)
+{
+	int r = 0;
+	struct data_Repeat *data = (struct data_Repeat*) calloc(1, sizeof(struct data_Repeat));
+
+	if(json == NULL) {
+		ln_errprintf(ctx, 0, "repeat parser needs 'parser','while' parameters");
+		goto done;
+	}
+
+	json_object_object_foreach(json, key, val) {
+		if(!strcmp(key, "parser")) {
+			data->parser = ln_newPDAG(ctx);
+			CHKR(ln_pdagAddParser(ctx, &data->parser, val));
+		} else if(!strcmp(key, "while")) {
+			;
+		} else {
+			ln_errprintf(ctx, 0, "invalid param for hexnumber: %s",
+				 json_object_to_json_string(val));
+		}
+	}
+
+done:
+	*pdata = data;
+	return r;
+}
+PARSER_Destruct(Repeat)
+{
+	struct data_Repeat *data = (struct data_Repeat*) calloc(1, sizeof(struct data_Repeat));
+	ln_pdagDelete(data->parser);
+	ln_pdagDelete(data->while_cond);
+	free(pdata);
+}
+

@@ -754,39 +754,84 @@ ln_displayPDAG(ln_ctx ctx)
 /* the following is a quick hack, which should be moved to the
  * string class.
  */
-static inline void dotAddPtr(es_str_t **str, void *p)
+static inline void dotAddPtr(es_str_t **str, void *node1, void *node2, const char *const prefix)
 {
 	char buf[64];
 	int i;
-	i = snprintf(buf, sizeof(buf), "l%p", p);
+	if(node2 == NULL) {
+		i = snprintf(buf, sizeof(buf), "%s%p", prefix, node1);
+	} else {
+		i = snprintf(buf, sizeof(buf), "%s%p%p", prefix, node1, node2);
+	}
 	es_addBuf(str, buf, i);
 }
+
+
+static void ln_genDotPDAGGraphRec(struct ln_pdag *dag, es_str_t **str,struct ln_pdag *);
+static void
+dotPlotRepeat(void *node1, ln_parser_t *prs, es_str_t **str)
+{
+	struct data_Repeat *const data = (struct data_Repeat*) prs->parser_data;
+
+	ln_pdagComponentClearVisited(data->parser);
+	ln_pdagComponentClearVisited(data->while_cond);
+
+	dotAddPtr(str, node1, prs->node, "l");
+	es_addBufConstcstr(str, " -> ");
+	dotAddPtr(str, data->parser, NULL, "l");
+	es_addBufConstcstr(str, "[label=\"parser\" style=\"dotted\"]\n");
+	ln_genDotPDAGGraphRec(data->parser, str, data->while_cond);
+
+	dotAddPtr(str, node1, prs->node, "l");
+	es_addBufConstcstr(str, " -> ");
+	dotAddPtr(str, data->while_cond, NULL, "l");
+	es_addBufConstcstr(str, "[label=\"while\" style=\"dotted\"]\n");
+	ln_genDotPDAGGraphRec(data->while_cond, str, node1);
+
+}
+
+
 struct data_Literal { const char *lit; }; // TODO remove when this hack is no longe needed
 /**
  * recursive handler for DOT graph generator.
  */
 static void
-ln_genDotPDAGGraphRec(struct ln_pdag *dag, es_str_t **str)
+ln_genDotPDAGGraphRec(struct ln_pdag *dag, es_str_t **str, struct ln_pdag *afterleaf)
 {
 	ln_dbgprintf(dag->ctx, "in dot: %p, visited %d", dag, (int) dag->flags.visited);
 	if(dag->flags.visited)
 		return; /* already processed this subpart */
 	dag->flags.visited = 1;
-	dotAddPtr(str, dag);
-	es_addBufConstcstr(str, " [ label=\"n\"");
+	dotAddPtr(str, dag, NULL, "l");
+	es_addBufConstcstr(str, " [ label=\"\"");
 
 	if(isLeaf(dag)) {
 		es_addBufConstcstr(str, " style=\"bold\"");
 	}
 	es_addBufConstcstr(str, "]\n");
+	if(isLeaf(dag) && afterleaf != NULL) {
+		dotAddPtr(str, dag, NULL, "l");
+		es_addBufConstcstr(str, " -> ");
+		dotAddPtr(str, afterleaf, NULL, "l");
+		es_addBufConstcstr(str, "[style=\"dotted\"]\n");
+	}
 
 	/* display field subdags */
 
 	for(int i = 0 ; i < dag->nparsers ; ++i) {
 		ln_parser_t *const prs = dag->parsers+i;
-		dotAddPtr(str, dag);
+		dotAddPtr(str, dag, NULL, "l");
 		es_addBufConstcstr(str, " -> ");
-		dotAddPtr(str, prs->node);
+		dotAddPtr(str, dag, prs->node, "l");
+		es_addBufConstcstr(str, "\n");
+
+		dotAddPtr(str, dag, prs->node, "l");
+		es_addBufConstcstr(str, " -> ");
+		dotAddPtr(str, prs->node, NULL, "l");
+		es_addBufConstcstr(str, "\n");
+
+		dotAddPtr(str, dag, prs->node, "l");
+
 		es_addBufConstcstr(str, " [label=\"");
 		es_addBuf(str, parserName(prs->prsid), strlen(parserName(prs->prsid)));
 		es_addBufConstcstr(str, ":");
@@ -800,8 +845,13 @@ ln_genDotPDAGGraphRec(struct ln_pdag *dag, es_str_t **str)
 			}
 		}
 		es_addBufConstcstr(str, "\"");
-		es_addBufConstcstr(str, " style=\"dotted\"]\n");
-		ln_genDotPDAGGraphRec(prs->node, str);
+		es_addBufConstcstr(str, " style=\"normal\"]\n");
+		if(prs->prsid == PRS_REPEAT) {
+			dotPlotRepeat(dag, prs, str);
+		}
+
+		/* recurse */
+		ln_genDotPDAGGraphRec(prs->node, str, afterleaf);
 	}
 }
 
@@ -811,7 +861,7 @@ ln_genDotPDAGGraph(struct ln_pdag *dag, es_str_t **str)
 {
 	ln_pdagClearVisited(dag->ctx);
 	es_addBufConstcstr(str, "digraph pdag {\n");
-	ln_genDotPDAGGraphRec(dag, str);
+	ln_genDotPDAGGraphRec(dag, str, NULL);
 	es_addBufConstcstr(str, "}\n");
 }
 

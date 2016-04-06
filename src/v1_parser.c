@@ -43,6 +43,10 @@
 #include <errno.h>			
 #endif
 
+#ifndef JSON_C_OBJECT_ADD_KEY_IS_NEW
+#define json_object_object_add_ex(a, b, c, d) json_object_object_add(a, b, c)
+#endif
+
 /* some helpers */
 static inline int
 hParseInt(const unsigned char **buf, size_t *lenBuf)

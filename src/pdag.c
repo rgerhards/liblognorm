@@ -1330,12 +1330,20 @@ fixJSON(struct ln_pdag *dag,
 		} else {
 			LN_DBGPRINTF(dag->ctx, "field name is '.', but json type is %s",
 				json_type_to_name(json_object_get_type(*value)));
+#ifdef JSON_C_OBJECT_ADD_KEY_IS_NEW
 			json_object_object_add_ex(json, prs->name, *value,
 				JSON_C_OBJECT_ADD_KEY_IS_NEW|JSON_C_OBJECT_KEY_IS_CONSTANT);
+#else
+			json_object_object_add(json, prs->name, *value);
+#endif
 		}
 	} else {
+#ifdef JSON_C_OBJECT_ADD_KEY_IS_NEW
 		json_object_object_add_ex(json, prs->name, *value,
 			JSON_C_OBJECT_ADD_KEY_IS_NEW|JSON_C_OBJECT_KEY_IS_CONSTANT);
+#else
+			json_object_object_add(json, prs->name, *value);
+#endif
 	}
 	r = 0;
 	return r;

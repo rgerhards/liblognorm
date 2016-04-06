@@ -48,7 +48,9 @@ AC_SUBST(LIBLOGNORM_LIBS)
 
 # modules we require
 PKG_CHECK_MODULES(LIBESTR, libestr >= 0.0.0)
-PKG_CHECK_MODULES(JSON_C, libfastjson,, )
+# uncomment either one of the two below
+PKG_CHECK_MODULES([JSON_C], [libfastjson])
+#PKG_CHECK_MODULES([JSON_C], [json],, [ PKG_CHECK_MODULES([JSON_C], [json-c],,) ])
 
 # Regular expressions
 AC_ARG_ENABLE(regexp,

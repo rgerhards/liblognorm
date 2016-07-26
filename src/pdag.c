@@ -446,7 +446,8 @@ fixComponentID(struct ln_pdag *const __restrict__ dag, const char *const new)
 	}
 	if(i >= 1 && curr[i-1] == '%')
 		--i;
-	asprintf(&updated, "%.*s[%s|%s]", i, curr, curr+i, new+i);
+	if(asprintf(&updated, "%.*s[%s|%s]", i, curr, curr+i, new+i) == 1)
+		updated = "asprintf fail";
 	deleteComponentID(dag);
 	dag->rb_id = updated;
 	return updated;
@@ -477,18 +478,21 @@ ln_pdagComponentSetIDs(ln_ctx ctx, struct ln_pdag *const dag, const char *prefix
 		ln_parser_t *prs = dag->parsers+i;
 		if(prs->prsid == PRS_LITERAL) {
 			if(prs->name == NULL) {
-				asprintf(&id, "%s%s", prefix,
-					ln_DataForDisplayLiteral(dag->ctx, prs->parser_data));
+				if(asprintf(&id, "%s%s", prefix,
+					ln_DataForDisplayLiteral(dag->ctx, prs->parser_data)) == -1)
+					id = "asprintf fail";
 			} else {
-				asprintf(&id, "%s%%%s:%s:%s%%", prefix,
+				if(asprintf(&id, "%s%%%s:%s:%s%%", prefix,
 					prs->name,
 					parserName(prs->prsid),
-					ln_DataForDisplayLiteral(dag->ctx, prs->parser_data));
+					ln_DataForDisplayLiteral(dag->ctx, prs->parser_data)) == -1)
+					id = "asprintf fail";
 			}
 		} else {
-			asprintf(&id, "%s%%%s:%s%%", prefix,
+			if(asprintf(&id, "%s%%%s:%s%%", prefix,
 				prs->name ? prs->name : "-",
-				parserName(prs->prsid));
+				parserName(prs->prsid)) == -1)
+					id = "asprintf fail";
 		}
 		ln_pdagComponentSetIDs(ctx, prs->node, id);
 		free(id);

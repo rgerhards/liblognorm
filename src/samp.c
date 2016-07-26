@@ -2,7 +2,7 @@
  * This code handles rulebase processing. Rulebases have been called
  * "sample bases" in the early days of liblognorm, thus the name.
  *
- * Copyright 2010-2015 by Rainer Gerhards and Adiscon GmbH.
+ * Copyright 2010-2016 by Rainer Gerhards and Adiscon GmbH.
  *
  * Modified by Pavel Levshin (pavel@levshin.spb.ru) in 2013
  *
@@ -695,7 +695,7 @@ done:	return r;
  * @param[in] len length of buffer
  * @param[in/out] offs on entry: offset first unprocessed position
  */
-static inline void
+static void
 skipWhitespace(ln_ctx __attribute__((unused)) ctx, const char *buf, es_size_t lenBuf, es_size_t *offs)
 {
 	while(*offs < lenBuf && isspace(buf[*offs])) {

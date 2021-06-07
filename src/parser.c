@@ -1686,10 +1686,16 @@ PARSER_Parse(QuotedString)
 		goto done;
 
 	/* success, persist */
-	*parsed = i + 1 - *offs; /* "eat" terminal double quote */
+	const size_t charsFound = i + 1 - *offs;
+	*parsed = charsFound; /* "eat" terminal double quote */
+fprintf(stderr, "str %s, offs %zd, i %zd, charsFound %zd, str2 %s, dashIsNull %d, strncmp %d\n", c, *offs, i, charsFound, npb->str+(*offs), data->dashIsNull, !strncmp(npb->str+(*offs), "\"-\"", 3));
 	/* create JSON value to save quoted string contents */
 	if(value != NULL) {
-		*value = json_object_new_string_len(npb->str+(*offs), *parsed);
+		if(charsFound == 3 && data->dashIsNull && !strncmp(npb->str+(*offs), "\"-\"", 3)) {
+			*value = json_object_new_string_len("null", 4);
+		} else {
+			*value = json_object_new_string_len(npb->str+(*offs), *parsed);
+		}
 	}
 	r = 0; /* success */
 done:

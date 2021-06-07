@@ -11,7 +11,7 @@ add_rule 'rule=:%
 	 %'
 
 execute '"word1\"word2"'
-assert_output_json_eq '{ "b": "word2", "a": "word1" }'
+assert_output_json_eq '{ "str": "\"word1\\\"word2\""}'
 
 
 cleanup_tmp_files

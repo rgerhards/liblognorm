@@ -10,7 +10,10 @@
 ## Key Directories
 - `src/`: Source code.
 - `doc/`: Documentation (Sphinx reStructuredText).
+    - `doc/internals.rst`: High-level User Architecture (concepts).
+    - `doc/pdag_implementation_model.rst`: Low-level Developer Architecture (implementation).
 - `tests/`: Test suite.
+- `tools/`: Helper scripts (e.g., `setup_ubuntu.sh`).
 
 ## Architecture Map
 For a detailed breakdown of which files implement which concepts, see:
@@ -23,6 +26,7 @@ For a detailed breakdown of which files implement which concepts, see:
 4.  **Error Handling**: Uses `goto done` pattern for cleanup and error propagation.
 
 ## Common Tasks
+- **Environment Setup**: Run `tools/setup_ubuntu.sh` to install build dependencies on Ubuntu.
 - **Adding a new parser**: See `src/parser.c`. Use the `PARSER_Parse`, `PARSER_Construct`, etc. macros.
 - **Debugging**: The library has a debug callback system (`ln_setDebugCB`).
 

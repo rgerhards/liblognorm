@@ -19,9 +19,9 @@ This document maps high-level concepts to specific files and functions in the co
     *   `src/samp.c` parses the rule file.
     *   `src/pdag.c` builds the PDAG from the samples.
 3.  **Normalization**: User calls `ln_normalize()`.
-    *   `src/lognorm.c` is the entry point.
-    *   It delegates to `ln_pdagParse()` in `src/pdag.c`.
-    *   `ln_pdagParse()` traverses the graph, calling `ln_v2_parse*` functions in `src/parser.c`.
+    *   `src/pdag.c` contains `ln_normalize()`.
+    *   It delegates to `ln_normalizeRec()` in `src/pdag.c`.
+    *   `ln_normalizeRec()` traverses the graph, calling `ln_v2_parse*` functions in `src/parser.c`.
 
 ## Critical Data Structures
 

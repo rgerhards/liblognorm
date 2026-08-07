@@ -1,0 +1,30 @@
+ChangeLog
+  h_95716f3de0caf5 3-5
+src/internal.h
+  h_95716f3de0caf5 124-126
+src/liblognorm.c
+  h_95716f3de0caf5 28,38,126-166
+src/liblognorm.h
+  h_95716f3de0caf5 149
+src/pdag.c
+  h_95716f3de0caf5 1317-1318,1330,1816
+src/v1_ptree.c
+  h_95716f3de0caf5 533,550,880,882
+tests/Makefile.am
+  h_95716f3de0caf5 1,19-23,180-181,197-198
+tests/unparsed_data_binary.c
+  h_95716f3de0caf5 1-97
+tests/unparsed_data_binary.sh
+  h_95716f3de0caf5 1-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "1e58426783bd21096df0f0970001522a3b0f7a81",
+  "prompts": {},
+  "humans": {
+    "h_95716f3de0caf5": {
+      "author": "Rainer Gerhards <rgerhards@adiscon.com>"
+    }
+  }
+}

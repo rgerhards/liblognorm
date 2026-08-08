@@ -1,0 +1,16 @@
+tests/unparsed_data_binary.c
+  h_95716f3de0caf5 69-71,74-75,77-78,80-81,83-84,87-88
+tests/unparsed_data_binary.sh
+  h_95716f3de0caf5 8-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "d92539012b4921094eb4a72db56c5c286aab6352",
+  "prompts": {},
+  "humans": {
+    "h_95716f3de0caf5": {
+      "author": "Rainer Gerhards <rgerhards@adiscon.com>"
+    }
+  }
+}

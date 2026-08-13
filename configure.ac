@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([liblognorm], [2.1.0.master], [rgerhards@adiscon.com])
+AC_INIT([liblognorm], [2.1.0], [rgerhards@adiscon.com])
 AM_INIT_AUTOMAKE
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AC_CONFIG_SRCDIR([src/lognorm.c])
@@ -19,7 +19,7 @@ AC_PROG_LIBTOOL
 m4_ifdef([AX_IS_RELEASE], [
 	AX_IS_RELEASE([git-directory])
 	m4_ifdef([AX_COMPILER_FLAGS], [
-		AX_COMPILER_FLAGS()
+		AX_COMPILER_FLAGS([], [], [], [], [-Wno-inline])
 	], [
 		if test "$GCC" = "yes"
 		then CFLAGS="$CFLAGS -W -Wall -Wformat-security -Wshadow -Wcast-align -Wpointer-arith -Wmissing-format-attribute -g"

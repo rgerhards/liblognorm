@@ -72,7 +72,10 @@ static void
 errCallBack(void __attribute__((unused)) *cookie, const char *msg,
 	    size_t __attribute__((unused)) lenMsg)
 {
-	fprintf(stderr, "liblognorm error: %s\n", msg);
+	if(!strncmp(msg, "warning: ", sizeof("warning: ") - 1))
+		fprintf(stderr, "liblognorm %s\n", msg);
+	else
+		fprintf(stderr, "liblognorm error: %s\n", msg);
 }
 
 static void
@@ -224,7 +227,8 @@ normalize(void)
 	int line_nbr = 0;	/* must be int to keep compatible with older json-c */
 	int turbo_mode = 0;
 
-	if (ln_getCtxOpts(ctx) & LN_CTXOPT_TURBO) {
+	if ((ln_getCtxOpts(ctx) & LN_CTXOPT_TURBO)
+			&& !(ln_getCtxOpts(ctx) & LN_CTXOPT_ADD_EXPECTED_NEXT)) {
 		turbo_mode = 1;
 	}
 	if(verbose > 0) fprintf(stderr, "Turbo mode: '%d'\n", turbo_mode);
@@ -360,6 +364,8 @@ handle_generic_option(const char* opt) {
 		ln_setCtxOpts(ctx, LN_CTXOPT_ADD_RULE);
 	} else if (strcmp("addRuleLocation", opt) == 0) {
 		ln_setCtxOpts(ctx, LN_CTXOPT_ADD_RULE_LOCATION);
+	} else if (strcmp("addExpectedNext", opt) == 0) {
+		ln_setCtxOpts(ctx, LN_CTXOPT_ADD_EXPECTED_NEXT);
 #ifdef ENABLE_TURBO
 	} else if (strcmp("turbo", opt) == 0) {
 		ln_setCtxOpts(ctx, LN_CTXOPT_TURBO);
@@ -388,6 +394,7 @@ fprintf(stderr,
 	"    -oaddRuleLocation Add location of matching rule to metadata\n"
 	"    -oaddExecPath Add exec_path attribute to output\n"
 	"    -oaddOriginalMsg Always add original message to output, not just in error case\n"
+	"    -oaddExpectedNext Add bounded expected-next diagnostics on parse failure\n"
 #ifdef ENABLE_TURBO
 	"    -oturbo      Enable TurboVM fast path for JSON output\n"
 #endif
@@ -421,6 +428,7 @@ int main(int argc, char *argv[])
 		ret = 1;
 		goto exit;
 	}
+	ln_setErrMsgCB(ctx, errCallBack, NULL);
 
 	while((opt = getopt(argc, argv, "d:s:S:e:r:R:E:vVpPt:To:hHULx:")) != -1) {
 		switch (opt) {
@@ -549,7 +557,6 @@ int main(int argc, char *argv[])
 		goto exit;
 	}
 
-	ln_setErrMsgCB(ctx, errCallBack, NULL);
 	if(verbose) {
 		ln_setDebugCB(ctx, dbgCallBack, NULL);
 		ln_enableDebug(ctx, 1);

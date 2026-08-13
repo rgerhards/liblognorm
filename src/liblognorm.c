@@ -25,6 +25,7 @@
  * A copy of the LGPL v2.1 can be found in the file "COPYING" in this distribution.
  */
 #include "config.h"
+#include <limits.h>
 #include <string.h>
 #include <errno.h>
 
@@ -34,6 +35,7 @@
 #include "samp.h"
 #include "v1_liblognorm.h"
 #include "v1_ptree.h"
+#include "internal.h"
 #ifdef ENABLE_TURBO
 #include "turbo.h"
 #endif
@@ -104,13 +106,29 @@ done:
 
 void
 ln_setCtxOpts(ln_ctx ctx, const unsigned opts) {
+#ifdef ENABLE_TURBO
+	const unsigned oldOpts = ctx->opts;
+	const unsigned turboDiagnosticOpts = LN_CTXOPT_TURBO | LN_CTXOPT_ADD_EXPECTED_NEXT;
+#endif
+
 	ctx->opts |= opts;
 #ifdef ENABLE_TURBO
+	if((oldOpts & turboDiagnosticOpts) != turboDiagnosticOpts
+	   && (ctx->opts & turboDiagnosticOpts) == turboDiagnosticOpts) {
+		ln_errprintf(ctx, 0,
+			"warning: addExpectedNext disables TurboVM; normalization "
+			"will use the slower recursive walker");
+	}
 	/* Lazy-init turbo context on first LN_CTXOPT_TURBO request */
 	if((opts & LN_CTXOPT_TURBO) && ctx->turbo == NULL) {
 		ctx->turbo = ln_turbo_ctx_init();
 		/* Non-fatal if NULL — will fall back to recursive walker */
 	}
+	/* Expected-next diagnostics need the recursive graph walk to retain all
+	 * furthest failed nodes. Turbo callers observe it as unavailable and use
+	 * their existing standard-normalizer fallback. */
+	if((ctx->opts & LN_CTXOPT_ADD_EXPECTED_NEXT) && ctx->turbo != NULL)
+		ln_turbo_disable(ctx);
 #endif
 }
 
@@ -118,6 +136,47 @@ unsigned
 ln_getCtxOpts(ln_ctx ctx)
 {
 	return ctx->opts;
+}
+
+
+int
+ln_addUnparsedDataBinaryField(ln_ctx ctx, const char *str, const size_t strLen,
+		struct json_object *json)
+{
+	static const char hex[] = "0123456789abcdef";
+	struct json_object *value;
+	char *encoded;
+	size_t i;
+
+	if(ctx->opts & LN_CTXOPT_NO_UNPARSED_DATA_BINARY)
+		return 0;
+
+	for(i = 0 ; i < strLen ; ++i) {
+		const unsigned char c = (unsigned char) str[i];
+		if(c < 0x20 || c == 0x7f)
+			break;
+	}
+	if(i == strLen)
+		return 0;
+
+	if(strLen > (size_t) INT_MAX / 2)
+		return LN_OVER_SIZE_LIMIT;
+	if((encoded = malloc(strLen * 2 + 1)) == NULL)
+		return LN_NOMEM;
+
+	for(i = 0 ; i < strLen ; ++i) {
+		const unsigned char c = (unsigned char) str[i];
+		encoded[i * 2] = hex[c >> 4];
+		encoded[i * 2 + 1] = hex[c & 0x0f];
+	}
+	encoded[strLen * 2] = '\0';
+	value = json_object_new_string_len(encoded, strLen * 2);
+	free(encoded);
+	if(value == NULL)
+		return LN_NOMEM;
+	json_object_object_add(json, "unparsed-data-binary", value);
+
+	return 0;
 }
 
 
@@ -190,7 +249,8 @@ static void
 ln_tryTurboCompile(ln_ctx ctx, int load_result)
 {
 #ifdef ENABLE_TURBO
-	if(load_result == 0 && ctx->turbo != NULL && (ctx->opts & LN_CTXOPT_TURBO)) {
+	if(load_result == 0 && ctx->turbo != NULL && (ctx->opts & LN_CTXOPT_TURBO)
+			&& !(ctx->opts & LN_CTXOPT_ADD_EXPECTED_NEXT)) {
 		int r = ln_turbo_compile(ctx);
 		if(r != 0) {
 			ln_dbgprintf(ctx, "turbo VM compilation failed, "

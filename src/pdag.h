@@ -24,6 +24,7 @@
 typedef struct ln_pdag ln_pdag; /**< the parse DAG object */
 typedef struct ln_parser_s ln_parser_t;
 typedef struct npb npb_t;
+typedef struct ln_expected_tracker_s ln_expected_tracker_t;
 typedef uint8_t prsid_t;
 
 struct ln_type_pdag;
@@ -162,6 +163,7 @@ struct npb {
 	size_t longestParsedTo;	/**< up to which byte could this be parsed? */
 	es_str_t *rule;			/**< a mock-up of the rule used to parse */
 	es_str_t *exec_path;
+	ln_expected_tracker_t *expected;
 #ifdef ADVANCED_STATS
 	int pathlen;
 	int backtracked;

@@ -132,6 +132,22 @@ Special options. The following ones can be set:
      practice this is extremely unlikely and as such for practical
      reasons the information can be considered reliable.
 
+   * **addExpectedNext** Add a bounded ``parse-error`` object to JSON output
+     for messages that could not be normalized. It reports the greatest byte
+     offset reached by any attempted rule and the literals, parser motifs, or
+     end of input that could have continued a rule at that offset. The option
+     is intended for rulebase troubleshooting and has no effect on successful
+     events. It is disabled by default and does not allocate or collect
+     candidates unless explicitly enabled.
+
+     The recursive rule walker is required to collect alternatives from all
+     equally deep failed paths. Consequently, this option disables TurboVM for
+     the context even if ``turbo`` is also requested. This can substantially
+     reduce normalization throughput compared with TurboVM. When both options
+     are requested, liblognorm emits a one-time warning through its error
+     callback; ``lognormalizer`` prints that warning to standard error. Use a
+     context without this diagnostic option for production Turbo performance.
+
    * **turbo** Enable TurboVM bytecode engine for normalization. This
      requires liblognorm to be built with ``--enable-turbo``. When
      enabled, normalization uses the compiled bytecode VM with SIMD
@@ -190,6 +206,88 @@ either all messages that could or could not be normalized. To do so
 specify the -p or -P option. Also, it works in combination with the
 -t option to extract a subset based on tagging. In any case, the core
 use is to prepare a subset of the original file for further processing.
+
+Troubleshooting rulebases with expected-next diagnostics
+---------------------------------------------------------
+
+Use ``addExpectedNext`` when ``unparsed-data`` alone does not explain why a
+rule stopped. Preserve the original rulebase and input bytes while diagnosing
+the problem; line-ending conversion can remove the evidence.
+
+For example::
+
+    $ printf '%s\n' 'fromhost-ip=10.33.245.213' | \
+        lognormalizer -r rules.rb -e json -oaddExpectedNext
+
+A failed event can contain::
+
+    {
+      "originalmsg":"fromhost-ip=10.33.245.213",
+      "unparsed-data":"",
+      "parse-error":{
+        "offset":25,
+        "at-eof":true,
+        "expected-next":[
+          {"type":"literal", "value":"\r", "hex":"0d", "length":1}
+        ]
+      }
+    }
+
+``offset`` is a zero-based byte offset, not a character index. The reported
+offset is the greatest position reached across all attempted and backtracked
+rules. ``at-eof`` says that this position is at or beyond the end of the input
+message. Candidates at that position are deduplicated and can be:
+
+* ``literal``: fixed rule text. ``value`` is a JSON representation, while
+  ``hex`` exposes invisible bytes such as CR (``0d``), LF (``0a``), or a tab
+  (``09``). ``length`` is the complete literal length. Long literals include
+  only a 64-byte preview and set ``truncated`` to true.
+* ``parser``: a motif that could begin there. ``parser`` gives its type, such
+  as ``ipv4`` or ``number``, and ``field`` is included for named fields.
+* ``end-of-input``: at least one rule was terminal at that position. If it is
+  listed with other candidates, one rule could end while other conflicting
+  rules could continue.
+
+At most 32 alternatives are retained. ``expected-next-truncated`` is true if
+additional alternatives existed. The list is deliberately a union of all
+equally deep failures; it is not a claim that every candidate belongs to the
+same rule.
+
+An empty ``unparsed-data`` does not mean that normalization succeeded. It can
+mean that a rule consumed the complete message but its parse-DAG node was not
+terminal, or that the rule required another token after end of input. The
+``parse-error`` object distinguishes these cases. If failed input contains
+control bytes, compare ``unparsed-data`` with ``unparsed-data-binary``; the
+latter preserves the complete unparsed byte span as hexadecimal.
+
+Rulebase line endings are especially important. ``version=2`` must be the
+first physical line of a version 2 file. Its version check accepts either LF or
+CRLF. Ordinary rule records, however, are terminated by LF and retain a CR
+immediately before it. A CRLF rule ending after ``%source:ipv4%`` therefore
+adds a literal CR after the IPv4 motif. An LF-framed input message normally
+reaches the normalizer without its framing LF, so the IPv4 value can consume
+the entire message and leave ``unparsed-data`` empty while the rule still
+expects hexadecimal ``0d``. A visually blank CRLF line similarly contains a
+CR record and may produce an ``invalid record type`` rulebase-load error.
+
+Check the physical bytes rather than relying on an editor display::
+
+    $ file rules.rb
+    $ sed -n '1,20l' rules.rb
+    $ od -An -tx1 -c rules.rb | less
+
+``sed -n l`` displays CRLF endings as ``\\r$``. Also confirm that comments
+start in column one and that ``version=2`` has not been displaced by a comment
+or blank line. Do not rewrite the file until the original behavior has been
+reproduced.
+
+For deeper inspection, add ``-vvv`` to print rule loading, parse attempts,
+backtracking, and the internal parse-DAG dump. Generate a graph separately
+with ``-d graph.dot`` and render it with Graphviz. Search the verbose dump and
+DOT output around the reported byte offset, parser name, or literal hex value;
+terminal-node flags explain why an otherwise fully consumed message did or did
+not count as parsed. ``-s`` and ``-S`` can add parse-DAG statistics, but are
+expensive and intended for development diagnostics.
 
 Examples
 --------
@@ -269,4 +367,3 @@ rulebase.
 .. figure:: graph.png
    :width: 90 %
    :alt: graph sample
-

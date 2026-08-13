@@ -1,0 +1,94 @@
+src/liblognorm.h
+  s_41d2d821b68d8d::t_ae783da089d620 150-151
+src/expected_next.h
+  s_41d2d821b68d8d::t_4ac8b12caf3e98 1-24
+tests/expected_next_turbo.sh
+  s_41d2d821b68d8d::t_9be94c7be5a4ba 1-12
+src/pdag.h
+  s_41d2d821b68d8d::t_b3d119b86d1dc3 166
+  s_41d2d821b68d8d::t_4ac8b12caf3e98 27
+src/expected_next.c
+  s_41d2d821b68d8d::t_dfe3d542cd48a1 126
+  s_41d2d821b68d8d::t_b3d119b86d1dc3 144,148,150-151,156-157
+  s_41d2d821b68d8d::t_4ac8b12caf3e98 1-125,127-143,145-147,149,152-155,158-243
+src/lognorm-features.h.in
+  s_41d2d821b68d8d::t_4ac8b12caf3e98 8-9
+tests/expected_next.c
+  s_41d2d821b68d8d::t_08e4091d20c2de 219,222
+  s_41d2d821b68d8d::t_682d8e9c63e1a4 232,313-314,333-334
+  s_41d2d821b68d8d::t_2a1a939ebce4cc 268
+  s_41d2d821b68d8d::t_fb793ca6892a47 371-378,380-384,386-387
+  s_41d2d821b68d8d::t_ace22cd2c54b9d 1-4,6-7,9-12,14-15,19-24,37,50,55-73,75-118,120,122-136,184-186,188-213,216-218,220-221,223-231,233-267,269-295,297,299-312,315-332,335-339,368-370,388
+  s_41d2d821b68d8d::t_9c7e9361c99c4d 18,38-42,51-54
+  s_41d2d821b68d8d::t_3d44079848beb2 5,13,16-17,25-27,29,34-36,43-49,119,121,187,214-215
+  s_41d2d821b68d8d::t_a902302f45b0f2 137-155,157,162-183,379
+  s_41d2d821b68d8d::t_74f2f463136dee 156,158-161
+  s_41d2d821b68d8d::t_25e684ae010ecf 296,298
+  s_41d2d821b68d8d::t_8e67cd2fa832e4 74
+  s_41d2d821b68d8d::t_9be94c7be5a4ba 8,340-367,385
+  s_41d2d821b68d8d::t_5bf13c838e3000 28,30-33
+src/liblognorm.c
+  s_41d2d821b68d8d::t_c6bcd1a8854903 116-119,241-242
+  s_41d2d821b68d8d::t_f6bc9ea5f089ff 120
+src/v1_expected.c
+  s_41d2d821b68d8d::t_f6dfb80cc12c6e 8
+  s_41d2d821b68d8d::t_1626bdfae67eb5 148-153,155-156,159,168,176,180-191
+  s_41d2d821b68d8d::t_f424dd7c9e5aab 5-6
+  s_41d2d821b68d8d::t_49607042b68e09 116-117,123
+  s_41d2d821b68d8d::t_08407e0638e61a 154,157-158,160-167,169-175,177-179
+  s_41d2d821b68d8d::t_368aab904327e3 118-120
+  s_41d2d821b68d8d::t_d0be2410f5dfb0 7
+  s_41d2d821b68d8d::t_f5ccf22e591dd7 1-4,9-115,121-122,124-147
+tests/Makefile.am
+  s_41d2d821b68d8d::t_9be94c7be5a4ba 4
+  s_41d2d821b68d8d::t_ace22cd2c54b9d 1,25-29,186-189,205-207
+src/turbo.h
+  s_41d2d821b68d8d::t_f6bc9ea5f089ff 62-64
+doc/lognormalizer.rst
+  s_41d2d821b68d8d::t_ae783da089d620 135-147,207-288
+src/Makefile.am
+  s_41d2d821b68d8d::t_4ac8b12caf3e98 26-27
+  s_41d2d821b68d8d::t_f5ccf22e591dd7 28-29
+tests/expected_next.sh
+  s_41d2d821b68d8d::t_ace22cd2c54b9d 1-24
+ChangeLog
+  s_41d2d821b68d8d::t_ae783da089d620 3-7
+src/v1_expected.h
+  s_41d2d821b68d8d::t_f5ccf22e591dd7 1-11,14-15
+  s_41d2d821b68d8d::t_1626bdfae67eb5 12-13
+tests/expected_next_cli.sh
+  s_41d2d821b68d8d::t_08e4091d20c2de 10,17
+  s_41d2d821b68d8d::t_ace22cd2c54b9d 1-6,8-9,11-16,18-21
+  s_41d2d821b68d8d::t_3d44079848beb2 7
+src/turbo.c
+  s_41d2d821b68d8d::t_f6bc9ea5f089ff 811-817
+src/lognormalizer.c
+  s_41d2d821b68d8d::t_9be94c7be5a4ba 227-228
+  s_41d2d821b68d8d::t_893f8de827eb5a 364-365,394
+src/pdag.c
+  s_41d2d821b68d8d::t_bed024a0b63a4e 38
+  s_41d2d821b68d8d::t_9b94cf14361c76 29,40-63,1758,1812-1813,1857,1894,1897
+  s_41d2d821b68d8d::t_c6bcd1a8854903 1757
+  s_41d2d821b68d8d::t_0b50b347ac9795 1801-1802
+  s_41d2d821b68d8d::t_25e684ae010ecf 1701,1732-1738
+  s_41d2d821b68d8d::t_1626bdfae67eb5 1803-1804
+  s_41d2d821b68d8d::t_cb2c8ac0de2d56 30
+  s_41d2d821b68d8d::t_f268a97a03bc98 1895-1896
+  s_41d2d821b68d8d::t_c4c061c3f7fb97 39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "68ce4fd09f41c48489076618e6cc1f4e73d6be72",
+  "prompts": {},
+  "sessions": {
+    "s_41d2d821b68d8d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fce04-2e11-7a90-882f-6e4c6bb2e865",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Rainer Gerhards <rgerhards@adiscon.com>"
+    }
+  }
+}

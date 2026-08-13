@@ -26,6 +26,8 @@
 #include "internal.h"
 #include "parser.h"
 #include "helpers.h"
+#include "expected_next.h"
+#include "v1_expected.h"
 #ifdef ENABLE_TURBO
 #include "turbo.h"
 #endif
@@ -33,6 +35,32 @@
 void ln_displayPDAGComponentAlternative(struct ln_pdag *dag, int level);
 void ln_displayPDAGComponent(struct ln_pdag *dag, int level);
 static void pdagDeletePrs(ln_ctx ctx, ln_parser_t *const __restrict__ prs);
+static inline const char *parserName(prsid_t id);
+
+static void
+recordExpectedNode(npb_t *const npb, const struct ln_pdag *const dag,
+		const size_t offset)
+{
+	if(npb->expected == NULL)
+		return;
+	if(dag->flags.isTerminal)
+		ln_expected_add_end(npb->expected, offset);
+	for(size_t i = 0 ; i < dag->nparsers ; ++i) {
+		const ln_parser_t *const prs = dag->parsers + i;
+		if(prs->prsid == PRS_LITERAL) {
+			const char *const literal = ln_DataForDisplayLiteral(npb->ctx,
+				prs->parser_data);
+			ln_expected_add_literal(npb->expected, offset, literal, strlen(literal));
+		} else {
+			const char *parser = parserName(prs->prsid);
+			if(prs->prsid == PRS_CUSTOM_TYPE && prs->custType >= 0
+					&& prs->custType < npb->ctx->nTypes)
+				parser = npb->ctx->type_pdags[prs->custType].name;
+			ln_expected_add_parser(npb->expected, offset, parser, strlen(parser),
+				prs->name, prs->name == NULL ? 0 : strlen(prs->name));
+		}
+	}
+}
 
 #ifdef	ADVANCED_STATS
 uint64_t advstats_parsers_called = 0;
@@ -1670,6 +1698,7 @@ LN_DBGPRINTF(dag->ctx, "%zu: enter parser, dag node %p, json %p", offs, dag, jso
 				 	 : "UNKNOWN");
 		}
 		i = offs;
+		parsed = 0;
 		localR = tryParser(npb, dag, &i, &parsed, &value, prs, failOnDuplicate, json, prs->name);
 		if(localR == 0) {
 			parsedTo = i + parsed;
@@ -1700,6 +1729,13 @@ LN_DBGPRINTF(dag->ctx, "%zu: enter parser, dag node %p, json %p", offs, dag, jso
 				LN_DBGPRINTF(dag->ctx, "%zu nonmatch, backtracking required, parsed to=%zu",
 						offs, parsedTo);
 			}
+		} else if(npb->expected != NULL && prs->prsid == PRS_LITERAL && parsed != 0) {
+			const char *const literal = ln_DataForDisplayLiteral(npb->ctx,
+				prs->parser_data);
+			const size_t literal_len = strlen(literal);
+			if(parsed < literal_len)
+				ln_expected_add_literal(npb->expected, offs + parsed,
+					literal + parsed, literal_len - parsed);
 		}
 		if (value != NULL) { /* Free the value if it was created */
 			json_object_put(value);
@@ -1718,6 +1754,8 @@ LN_DBGPRINTF(dag->ctx, "offs %zu, strLen %zu, isTerm %d", offs, npb->strLen, dag
 		r = 0;
 		goto done;
 	}
+	if(r != 0 && npb->expected != NULL)
+		recordExpectedNode(npb, dag, offs);
 
 done:
 	LN_DBGPRINTF(dag->ctx, "%zu returns %d, pParsedTo %zu, parsedTo %zu",
@@ -1760,10 +1798,10 @@ ln_normalize(ln_ctx ctx, const char *str, const size_t strLen, struct json_objec
 	int r;
 	struct ln_pdag *endNode = NULL;
 	/* old cruft */
-	if(ctx->version == 1) {
-		r = ln_v1_normalize(ctx, str, strLen, json_p);
-		goto done;
-	}
+	if(ctx->version == 1)
+		return ctx->opts & LN_CTXOPT_ADD_EXPECTED_NEXT
+			? ln_v1_normalizeExpected(ctx, str, strLen, json_p)
+			: ln_v1_normalize(ctx, str, strLen, json_p);
 	/* end old cruft */
 
 	npb_t npb;
@@ -1771,6 +1809,8 @@ ln_normalize(ln_ctx ctx, const char *str, const size_t strLen, struct json_objec
 	npb.ctx = ctx;
 	npb.str = str;
 	npb.strLen = strLen;
+	if(ctx->opts & LN_CTXOPT_ADD_EXPECTED_NEXT)
+		npb.expected = ln_expected_new();
 	if(ctx->opts & LN_CTXOPT_ADD_RULE) {
 		npb.rule = es_newStr(1024);
 	}
@@ -1814,6 +1854,7 @@ ln_normalize(ln_ctx ctx, const char *str, const size_t strLen, struct json_objec
 		r = 0;
 	} else {
 		addUnparsedField(ctx, str, strLen, npb.longestParsedTo, *json_p);
+		(void)ln_expected_add_json(npb.expected, strLen, *json_p);
 	}
 
 	if(ctx->opts & LN_CTXOPT_ADD_RULE) {
@@ -1850,5 +1891,8 @@ ln_normalize(ln_ctx ctx, const char *str, const size_t strLen, struct json_objec
 
 	es_deleteStr(npb.astats.exec_path);
 #endif
-done:	return r;
+done:
+	if(npb.expected != NULL)
+		ln_expected_free(npb.expected);
+	return r;
 }

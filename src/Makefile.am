@@ -23,6 +23,10 @@ lib_LTLIBRARIES = liblognorm.la
 
 liblognorm_la_SOURCES = \
 	liblognorm.c \
+	expected_next.c \
+	expected_next.h \
+	v1_expected.c \
+	v1_expected.h \
 	pdag.c \
 	pdag.h \
 	annot.c \

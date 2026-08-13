@@ -808,6 +808,13 @@ ln_turbo_ctx_free(ln_turbo_ctx_t *turbo)
 	free(turbo);
 }
 
+void
+ln_turbo_disable(ln_ctx ctx)
+{
+	if(ctx != NULL && ctx->turbo != NULL)
+		((ln_turbo_ctx_t *)ctx->turbo)->enabled = 0;
+}
+
 int
 ln_turbo_compile(ln_ctx ctx)
 {

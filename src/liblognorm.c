@@ -113,6 +113,11 @@ ln_setCtxOpts(ln_ctx ctx, const unsigned opts) {
 		ctx->turbo = ln_turbo_ctx_init();
 		/* Non-fatal if NULL — will fall back to recursive walker */
 	}
+	/* Expected-next diagnostics need the recursive graph walk to retain all
+	 * furthest failed nodes. Turbo callers observe it as unavailable and use
+	 * their existing standard-normalizer fallback. */
+	if((ctx->opts & LN_CTXOPT_ADD_EXPECTED_NEXT) && ctx->turbo != NULL)
+		ln_turbo_disable(ctx);
 #endif
 }
 
@@ -233,7 +238,8 @@ static void
 ln_tryTurboCompile(ln_ctx ctx, int load_result)
 {
 #ifdef ENABLE_TURBO
-	if(load_result == 0 && ctx->turbo != NULL && (ctx->opts & LN_CTXOPT_TURBO)) {
+	if(load_result == 0 && ctx->turbo != NULL && (ctx->opts & LN_CTXOPT_TURBO)
+			&& !(ctx->opts & LN_CTXOPT_ADD_EXPECTED_NEXT)) {
 		int r = ln_turbo_compile(ctx);
 		if(r != 0) {
 			ln_dbgprintf(ctx, "turbo VM compilation failed, "

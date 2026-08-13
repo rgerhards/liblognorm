@@ -1,6 +1,7 @@
-check_PROGRAMS = json_eq err_callback_cookie unparsed_data_binary
+check_PROGRAMS = json_eq err_callback_cookie unparsed_data_binary expected_next
 TESTS_TURBO_SHELLS = \
 	turbo_smoke.sh \
+	expected_next_turbo.sh \
 	field_name_value_whitespace_turbo.sh \
 	field_json_turbo.sh
 
@@ -20,6 +21,11 @@ unparsed_data_binary_SOURCES = unparsed_data_binary.c
 unparsed_data_binary_CPPFLAGS = $(JSON_C_CFLAGS) $(WARN_CFLAGS) -I$(top_srcdir)/src
 unparsed_data_binary_LDADD = $(LIBLOGNORM_LIBS) $(JSON_C_LIBS)
 unparsed_data_binary_LDFLAGS = -no-install
+
+expected_next_SOURCES = expected_next.c
+expected_next_CPPFLAGS = $(JSON_C_CFLAGS) $(WARN_CFLAGS) -I$(top_srcdir)/src
+expected_next_LDADD = $(LIBLOGNORM_LIBS) $(JSON_C_LIBS)
+expected_next_LDFLAGS = -no-install
 
 #user_test_SOURCES = user_test.c
 #user_test_CPPFLAGS = $(LIBLOGNORM_CFLAGS) $(JSON_C_CFLAGS) $(LIBESTR_CFLAGS)
@@ -177,8 +183,10 @@ TESTS_SHELLSCRIPTS += \
 #re-add to TESTS if needed: user_test
 TESTS = \
         $(TESTS_SHELLSCRIPTS) \
-        err_callback_cookie.sh \
-        unparsed_data_binary.sh
+		err_callback_cookie.sh \
+		unparsed_data_binary.sh \
+		expected_next.sh \
+		expected_next_cli.sh
 
 REGEXP_TESTS = \
 	field_regex_default_group_parse_and_return.sh \
@@ -194,6 +202,9 @@ EXTRA_DIST = exec.sh \
 	$(TESTS_TURBO_SHELLS) \
 	$(REGEXP_TESTS) \
 	err_callback_cookie.sh \
+	expected_next.c \
+	expected_next.sh \
+	expected_next_cli.sh \
 	unparsed_data_binary.c \
 	unparsed_data_binary.sh \
 	$(json_eq_self_sources) \

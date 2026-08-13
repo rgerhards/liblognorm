@@ -1,5 +1,10 @@
 ----------------------------------------------------------------------
 Version 2.1.0, 2026-06-25
+- add optional expected-next diagnostics for failed normalizations. The
+  bounded parse-error metadata reports the deepest byte offset and candidate
+  literals, parser motifs, or end-of-input across conflicting rule paths for
+  v1 and v2 rulebases. Disabled by default with no candidate collection on the
+  normal path; enabling it selects the recursive walker instead of TurboVM.
 - add unparsed-data-binary for failed parses containing ASCII control bytes;
   the field contains the complete unparsed byte span as lowercase hexadecimal
   and can be disabled with LN_CTXOPT_NO_UNPARSED_DATA_BINARY.

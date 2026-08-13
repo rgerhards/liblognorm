@@ -147,6 +147,8 @@ int ln_exitCtx(ln_ctx ctx);
 #define LN_CTXOPT_ADD_RULE_LOCATION	0x10 /**< add rule location (file, lineno) to metadata */
 #define LN_CTXOPT_TURBO			0x20 /**< enable TurboVM parsing */
 #define LN_CTXOPT_NO_UNPARSED_DATA_BINARY 0x40 /**< do not add hexadecimal unparsed data for control bytes */
+#define LN_CTXOPT_ADD_EXPECTED_NEXT	0x80 /**< add bounded expected-next diagnostics on parse failure;
+					      disables TurboVM for this context */
 /**
  * Set options on ctx.
  *

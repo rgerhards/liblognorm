@@ -59,6 +59,9 @@ ln_turbo_ctx_t *ln_turbo_ctx_init(void);
  */
 void ln_turbo_ctx_free(ln_turbo_ctx_t *turbo);
 
+/** Disable TurboVM for a context that requires recursive-walker diagnostics. */
+void ln_turbo_disable(ln_ctx ctx);
+
 /**
  * Compile PDAG to VM bytecode.
  * Call after ln_loadSamples() completes successfully.

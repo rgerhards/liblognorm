@@ -142,8 +142,11 @@ Special options. The following ones can be set:
 
      The recursive rule walker is required to collect alternatives from all
      equally deep failed paths. Consequently, this option disables TurboVM for
-     the context even if ``turbo`` is also requested. Disable the diagnostic
-     option again for production Turbo performance.
+     the context even if ``turbo`` is also requested. This can substantially
+     reduce normalization throughput compared with TurboVM. When both options
+     are requested, liblognorm emits a one-time warning through its error
+     callback; ``lognormalizer`` prints that warning to standard error. Use a
+     context without this diagnostic option for production Turbo performance.
 
    * **turbo** Enable TurboVM bytecode engine for normalization. This
      requires liblognorm to be built with ``--enable-turbo``. When

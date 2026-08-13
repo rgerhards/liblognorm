@@ -7,6 +7,26 @@
 #include "liblognorm.h"
 #include "lognorm-turbo.h"
 
+struct warning_state {
+	unsigned count;
+	int mentionsTurbo;
+	int mentionsSlowWalker;
+};
+
+static void
+warning_callback(void *cookie, const char *msg, size_t lenMsg)
+{
+	struct warning_state *const state = cookie;
+	static const char prefix[] = "warning: ";
+
+	if(lenMsg < sizeof(prefix) - 1 || strncmp(msg, prefix, sizeof(prefix) - 1) != 0)
+		return;
+	++state->count;
+	state->mentionsTurbo |= strstr(msg, "disables TurboVM") != NULL;
+	state->mentionsSlowWalker |= strstr(msg, "slower recursive walker") != NULL;
+	(void)lenMsg;
+}
+
 static struct json_object *
 normalize(const char *const rulebase, const char *const message, const unsigned opts)
 {
@@ -346,22 +366,41 @@ test_turbo_compatibility(void)
 	static const char message[] =
 		"gateway=edge-router-17 source=10.33.245.213 result=";
 	ln_ctx ctx;
+	ln_ctx reverseCtx;
 	struct json_object *json = NULL;
+	struct warning_state warning = {0}, reverseWarning = {0};
 	int ok;
 
 	ctx = ln_initCtx();
 	if(ctx == NULL)
 		return 0;
+	ln_setErrMsgCB(ctx, warning_callback, &warning);
 	ln_setCtxOpts(ctx, LN_CTXOPT_TURBO);
 	ln_setCtxOpts(ctx, LN_CTXOPT_ADD_EXPECTED_NEXT);
+	ln_setCtxOpts(ctx, LN_CTXOPT_TURBO | LN_CTXOPT_ADD_EXPECTED_NEXT);
 	ok = ln_loadSamplesFromString(ctx, rulebase) == 0
 		&& !ln_turbo_is_available(ctx);
+#ifdef ENABLE_TURBO
+	ok = ok && warning.count == 1 && warning.mentionsTurbo && warning.mentionsSlowWalker;
+#endif
 	(void)ln_normalize(ctx, message, strlen(message), &json);
 	ok = ok && get_parse_error(json) != NULL
 		&& has_candidate(get_parse_error(json), "parser", "parser", "number");
 	if(json != NULL)
 		json_object_put(json);
 	ln_exitCtx(ctx);
+
+	reverseCtx = ln_initCtx();
+	if(reverseCtx == NULL)
+		return 0;
+	ln_setErrMsgCB(reverseCtx, warning_callback, &reverseWarning);
+	ln_setCtxOpts(reverseCtx, LN_CTXOPT_ADD_EXPECTED_NEXT);
+	ln_setCtxOpts(reverseCtx, LN_CTXOPT_TURBO);
+#ifdef ENABLE_TURBO
+	ok = ok && reverseWarning.count == 1 && reverseWarning.mentionsTurbo
+		&& reverseWarning.mentionsSlowWalker;
+#endif
+	ln_exitCtx(reverseCtx);
 	return ok;
 }
 

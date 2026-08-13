@@ -72,7 +72,10 @@ static void
 errCallBack(void __attribute__((unused)) *cookie, const char *msg,
 	    size_t __attribute__((unused)) lenMsg)
 {
-	fprintf(stderr, "liblognorm error: %s\n", msg);
+	if(!strncmp(msg, "warning: ", sizeof("warning: ") - 1))
+		fprintf(stderr, "liblognorm %s\n", msg);
+	else
+		fprintf(stderr, "liblognorm error: %s\n", msg);
 }
 
 static void
@@ -425,6 +428,7 @@ int main(int argc, char *argv[])
 		ret = 1;
 		goto exit;
 	}
+	ln_setErrMsgCB(ctx, errCallBack, NULL);
 
 	while((opt = getopt(argc, argv, "d:s:S:e:r:R:E:vVpPt:To:hHULx:")) != -1) {
 		switch (opt) {
@@ -553,7 +557,6 @@ int main(int argc, char *argv[])
 		goto exit;
 	}
 
-	ln_setErrMsgCB(ctx, errCallBack, NULL);
 	if(verbose) {
 		ln_setDebugCB(ctx, dbgCallBack, NULL);
 		ln_enableDebug(ctx, 1);

@@ -106,8 +106,19 @@ done:
 
 void
 ln_setCtxOpts(ln_ctx ctx, const unsigned opts) {
+#ifdef ENABLE_TURBO
+	const unsigned oldOpts = ctx->opts;
+	const unsigned turboDiagnosticOpts = LN_CTXOPT_TURBO | LN_CTXOPT_ADD_EXPECTED_NEXT;
+#endif
+
 	ctx->opts |= opts;
 #ifdef ENABLE_TURBO
+	if((oldOpts & turboDiagnosticOpts) != turboDiagnosticOpts
+	   && (ctx->opts & turboDiagnosticOpts) == turboDiagnosticOpts) {
+		ln_errprintf(ctx, 0,
+			"warning: addExpectedNext disables TurboVM; normalization "
+			"will use the slower recursive walker");
+	}
 	/* Lazy-init turbo context on first LN_CTXOPT_TURBO request */
 	if((opts & LN_CTXOPT_TURBO) && ctx->turbo == NULL) {
 		ctx->turbo = ln_turbo_ctx_init();

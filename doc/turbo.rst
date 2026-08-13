@@ -94,6 +94,21 @@ The standard ``ln_normalize()`` function also benefits from TurboVM
 when it is enabled — the bytecode engine is used internally, with
 automatic fallback to the recursive walker if needed.
 
+Expected-next diagnostic compatibility
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``LN_CTXOPT_ADD_EXPECTED_NEXT`` is a troubleshooting option that must retain
+all equally deep failures in the recursive parse graph. It is therefore not
+compatible with the TurboVM execution path. If a context requests both
+``LN_CTXOPT_TURBO`` and ``LN_CTXOPT_ADD_EXPECTED_NEXT``, liblognorm disables
+TurboVM for that context and emits a one-time warning through the configured
+error callback, regardless of the order in which the options are set.
+``lognormalizer`` prints the warning to standard error.
+
+The fallback can substantially reduce normalization throughput. Use the
+combination only while diagnosing a rulebase, then normalize production
+traffic with a context that does not enable ``LN_CTXOPT_ADD_EXPECTED_NEXT``.
+
 High-performance API (lognorm-turbo.h)
 --------------------------------------
 

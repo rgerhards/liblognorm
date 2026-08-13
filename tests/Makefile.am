@@ -23,7 +23,7 @@ unparsed_data_binary_LDADD = $(LIBLOGNORM_LIBS) $(JSON_C_LIBS)
 unparsed_data_binary_LDFLAGS = -no-install
 
 expected_next_SOURCES = expected_next.c
-expected_next_CPPFLAGS = $(JSON_C_CFLAGS) $(WARN_CFLAGS) -I$(top_srcdir)/src
+expected_next_CPPFLAGS = $(JSON_C_CFLAGS) $(WARN_CFLAGS) -I$(top_builddir)/src -I$(top_srcdir)/src
 expected_next_LDADD = $(LIBLOGNORM_LIBS) $(JSON_C_LIBS)
 expected_next_LDFLAGS = -no-install
 

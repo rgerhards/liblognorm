@@ -1,0 +1,38 @@
+src/liblognorm.h
+  s_41d2d821b68d8d::t_ae834d3a5d175d 151-152
+tests/expected_next_turbo.sh
+  s_41d2d821b68d8d::t_4067f731c76731 21
+  s_41d2d821b68d8d::t_9800037b3ecd35 2,5,20
+  s_41d2d821b68d8d::t_ae834d3a5d175d 15-19,22-26
+doc/lognormalizer.rst
+  s_41d2d821b68d8d::t_8767298d0a98b0 145-149
+tests/expected_next.c
+  s_41d2d821b68d8d::t_a4ffa98b07724f 10-19,21,24-29,371
+  s_41d2d821b68d8d::t_bbe453aff1eb0b 20,22-23
+  s_41d2d821b68d8d::t_8767298d0a98b0 369,377,380,383-385,392-403
+src/lognormalizer.c
+  s_41d2d821b68d8d::t_8767298d0a98b0 75-78,431
+src/liblognorm.c
+  s_41d2d821b68d8d::t_8767298d0a98b0 110-111,113,116-121
+  s_41d2d821b68d8d::t_a4ffa98b07724f 109,112
+doc/turbo.rst
+  s_41d2d821b68d8d::t_ae834d3a5d175d 97-111
+tests/Makefile.am
+  s_41d2d821b68d8d::t_58cf88d7789054 26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "600d6c1ee380e091a9f9a92e398439632c402b88",
+  "prompts": {},
+  "sessions": {
+    "s_41d2d821b68d8d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019fce04-2e11-7a90-882f-6e4c6bb2e865",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Rainer Gerhards <rgerhards@adiscon.com>"
+    }
+  }
+}

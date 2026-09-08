@@ -1,0 +1,19 @@
+ChangeLog
+  s_c54d3f9b31c8fc::t_20649018440866 2-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "45cdd5db437c738bbf1c8b41c1a6843768f8e591",
+  "prompts": {},
+  "sessions": {
+    "s_c54d3f9b31c8fc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a06658-99e7-76c1-96cd-422e9b578afc",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Rainer Gerhards <rgerhards@adiscon.com>"
+    }
+  }
+}
